@@ -32,17 +32,18 @@ z = foofunc() + 3
 print(z)
 """,
 ########################################
-"""
-def foo(a, b, c):
-    def boo():
-        x = a
-        y = b
-        def zoo(z):
-            return z + x + y + c
-        return zoo
-    return boo
-print(foo(1, 2, 3)()(7))
-""",
+# It is not a simple one o_O
+# """
+# def foo(a, b, c):
+#     def boo():
+#         x = a
+#         y = b
+#         def zoo(z):
+#             return z + x + y + c
+#         return zoo
+#     return boo
+# print(foo(1, 2, 3)()(7))
+# """,
 ########################################
 ]
 
@@ -56,3 +57,4 @@ for code in codes:
     print('*'*50)
     vm.run_code(bytecode)
     print('^'*150)
+
