@@ -1039,6 +1039,25 @@ class VirtualMachine(object):
             fn = Function(name, code, globs, defaults, None, None, self)
         self.push(fn)
 
+    # https://github.com/google/pytype/blob/master/pytype/vm.py#L2801
+    # def byte_LOAD_METHOD(self, state, op):
+    #     name = self.frame.f_code.co_names[op.arg]
+    #     state, self_obj = state.pop()
+    #     state, result = self.load_attr(state, self_obj, name)
+    #     # https://docs.python.org/3/library/dis.html#opcode-LOAD_METHOD says that
+    #     # this opcode should push two values onto the stack: either the unbound
+    #     # method and its `self` or NULL and the bound method. However, pushing only
+    #     # the bound method and modifying CALL_METHOD accordingly works in all cases
+    #     # we've tested.
+    #     return state.push(result)
+    #
+    # def byte_CALL_METHOD(self, state, op):
+    #     state, args = state.popn(op.arg)
+    #     state, func = state.pop()
+    #     state, result = self.call_function_with_state(state, func, args)
+    #     return state.push(result)
+    #
+
     def byte_LOAD_CLOSURE(self, name):
         self.push(self.frame.cells[name])
 
