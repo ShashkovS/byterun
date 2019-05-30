@@ -1,17 +1,5 @@
 from byterun.pyvm2 import VirtualMachine
 import dis
-import types
-
-
-def print_dis_code(bytecode):
-    """Disassemble `code` and all the code it refers to."""
-    for const in bytecode.co_consts:
-        if isinstance(const, types.CodeType):
-            print_dis_code(const)
-
-    print("-"*20)
-    dis.dis(bytecode)
-    print("-"*20)
 
 
 codes = [
@@ -44,15 +32,27 @@ z = foofunc() + 3
 print(z)
 """,
 ########################################
+"""
+def foo(a, b, c):
+    def boo():
+        x = a
+        y = b
+        def zoo(z):
+            return z + x + y + c
+        return zoo
+    return boo
+print(foo(1, 2, 3)()(7))
+""",
+########################################
 ]
 
 for code in codes:
-    print('*'*150)
+    print('v'*150)
     print(code.strip())
     print('*'*50)
     vm = VirtualMachine()
     bytecode = compile(code, "<simple_example>", "exec", 0, 1)
-    print_dis_code(bytecode)
-    print('v'*50)
+    dis.dis(bytecode)
+    print('*'*50)
     vm.run_code(bytecode)
     print('^'*150)
