@@ -4,7 +4,6 @@
 
 from __future__ import print_function, division
 import dis
-import inspect
 import linecache
 import logging
 import operator
@@ -612,9 +611,6 @@ class VirtualMachine(object):
 
     def byte_BUILD_MAP(self, count):
         # Pushes a new dictionary on to stack.
-        if sys.version_info < (3, 5):
-            self.push({})
-            return
         # Pop 2*count items so that
         # dictionary holds count entries: {..., TOS3: TOS2, TOS1:TOS}
         # updated in version 3.5
