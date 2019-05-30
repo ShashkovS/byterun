@@ -945,23 +945,31 @@ class VirtualMachine(object):
         self.push(fn)
 
     # https://github.com/google/pytype/blob/master/pytype/vm.py#L2801
-    # def byte_LOAD_METHOD(self, state, op):
-    #     name = self.frame.f_code.co_names[op.arg]
-    #     state, self_obj = state.pop()
-    #     state, result = self.load_attr(state, self_obj, name)
-    #     # https://docs.python.org/3/library/dis.html#opcode-LOAD_METHOD says that
-    #     # this opcode should push two values onto the stack: either the unbound
-    #     # method and its `self` or NULL and the bound method. However, pushing only
-    #     # the bound method and modifying CALL_METHOD accordingly works in all cases
-    #     # we've tested.
-    #     return state.push(result)
-    #
-    # def byte_CALL_METHOD(self, state, op):
-    #     state, args = state.popn(op.arg)
-    #     state, func = state.pop()
-    #     state, result = self.call_function_with_state(state, func, args)
-    #     return state.push(result)
-    #
+    def byte_LOAD_METHOD(self, arg, *args, **kwargs):
+        intArg = self.frame.f_code.co_names.index(arg)
+        attr = self.frame.f_code.co_names[intArg]
+        self_obj = self.pop()
+        func = getattr(self_obj, attr)
+        self.push(func)
+        # Loads a method named co_names[namei] from TOS object. TOS is popped and method
+        # and TOS are pushed when interpreter can call unbound method directly.
+        # TOS will be used as the first argument (self) by CALL_METHOD.
+        # Otherwise, NULL and method is pushed (method is bound method or something else).
+        # https://docs.python.org/3/library/dis.html#opcode-LOAD_METHOD says that
+        # this opcode should push two values onto the stack: either the unbound
+        # method and its `self` or NULL and the bound method. However, pushing only
+        # the bound method and modifying CALL_METHOD accordingly works in all cases
+        # we've tested.
+
+    def byte_CALL_METHOD(self, arg):
+        # Calls a method. argc is number of positional arguments. Keyword arguments are not supported.
+        # This opcode is designed to be used with LOAD_METHOD. Positional arguments are on top of the stack.
+        # Below them, two items described in LOAD_METHOD on the stack. All of them are popped and return value is pushed.
+        # В стеке сначала лежат arg параметров функции-метода, затем сама функция. Мы снимаем
+        # эти параметры так, чтобы наверху оказалась функция. После этого вызываем её
+        # (мы хакнули LOAD_METHOD, поэтому он добавляет в стек не пару, а только саму функцию
+        args = self.popn(arg)
+        return self.call_function(0, args, {})
 
     def byte_LOAD_CLOSURE(self, name):
         self.push(self.frame.cells[name])

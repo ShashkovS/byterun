@@ -8,6 +8,10 @@ class TestIt(vmtest.VmTestCase):
     def test_constant(self):
         self.assert_ok("17")
 
+    def test_simple_method(self):
+        self.assert_ok("(1).bit_length()")
+        # self.assertEqual(1, 2)
+
     def test_globals(self):
         self.assert_ok("""\
             global xyz
